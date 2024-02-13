@@ -49,7 +49,7 @@ func clear(ctx context.Context, dbPool *pgxpool.Pool) {
 	TruncateTestData(ctx, dbPool)
 }
 
-// !TestGetAllEventsv
+// !TestGetAllEvents
 func TestGetAllEvents(t *testing.T) {
 	setup(ctx, dbPool)
 	expectedEvents := []models.Event{
@@ -84,6 +84,20 @@ func TestAddEvent(t *testing.T) {
 		actualEvents := eventRepository.GetAllEvents()
 		assert.Equal(t, 1, len(actualEvents))
 		assert.Equal(t, expectedEvents, actualEvents)
+	})
+	clear(ctx, dbPool)
+}
+
+// !TestGetEventById
+func TestGetEventById(t *testing.T) {
+	setup(ctx, dbPool)
+	t.Run("GetEventById", func(t *testing.T) {
+		actualEvents, _ := eventRepository.GetEventById(1)
+		_, err := eventRepository.GetEventById(6)
+		assert.Equal(t, models.Event{
+			Id: 1, Name: "Event 1", Description: "Description of Event 1", Location: "Location 1", DateTime: time.Date(2024, 2, 14, 10, 0, 0, 0, time.UTC), UserID: 1,
+		}, actualEvents)
+		assert.Equal(t, "Product not found with id: 6", err.Error())
 	})
 	clear(ctx, dbPool)
 }

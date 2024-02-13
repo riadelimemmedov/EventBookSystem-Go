@@ -2,7 +2,9 @@ package persistence
 
 import (
 	"book_event/models"
+	"book_event/persistence/common"
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -14,6 +16,7 @@ import (
 type IEventRepository interface {
 	GetAllEvents() []models.Event
 	AddEvent(event models.Event) error
+	GetEventById(eventId int64) (models.Event, error)
 }
 
 type EventRepository struct {
@@ -50,6 +53,42 @@ func (eventRepository *EventRepository) AddEvent(event models.Event) error {
 		log.Info(fmt.Printf("Product added to database successfully: %s", addNewProduct))
 	}
 	return nil
+}
+
+// !GetEventById
+func (eventRepository *EventRepository) GetEventById(eventId int64) (models.Event, error) {
+	ctx := context.Background()
+
+	fmt.Println("Bunedir ala bele ", eventId)
+	getEventById := `SELECT * FROM event WHERE id=$1`
+
+	queryRow := eventRepository.dbPool.QueryRow(ctx, getEventById, eventId)
+
+	var id int64
+	var name string
+	var description string
+	var location string
+	var dateTime time.Time
+	var userId int64
+
+	scanErr := queryRow.Scan(&id, &name, &description, &location, &dateTime, &userId)
+
+	if scanErr != nil && scanErr.Error() == common.NOT_FOUND {
+		return models.Event{}, errors.New(fmt.Sprintf("Product not found with id: %d", eventId))
+	}
+	if scanErr != nil {
+		return models.Event{}, errors.New(fmt.Sprintf("Database error when getting product by id: %v", eventId))
+	}
+
+	return models.Event{
+		Id:          id,
+		Name:        name,
+		Description: description,
+		Location:    location,
+		DateTime:    dateTime,
+		UserID:      userId,
+	}, nil
+
 }
 
 // *extractProductsFromRows
