@@ -1,9 +1,7 @@
 package main
 
 import (
-	"book_event/db"
 	"book_event/models"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -11,9 +9,6 @@ import (
 
 // *main
 func main() {
-	//Initialize databse
-	db.InitDB()
-
 	//Set enviroment mode
 	// gin.SetMode(gin.DebugMode)
 
@@ -37,9 +32,7 @@ func getEvents(context *gin.Context) {
 // !createEvent
 func createEvent(context *gin.Context) {
 	var event models.Event
-	fmt.Println("Before binding ", event)
 	err := context.ShouldBindJSON(&event) //Check request body,user send required  data or not
-	fmt.Println("After binding ", event)
 
 	message, isSuccess := checkError(err, "Could not parse request data")
 
