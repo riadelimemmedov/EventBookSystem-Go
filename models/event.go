@@ -4,12 +4,12 @@ import "time"
 
 //*Event
 type Event struct {
-	Id          int
+	Id          int64
 	Name        string    `binding:"required"`
 	Description string    `binding:"required"`
 	Location    string    `binding:"required"`
 	DateTime    time.Time `binding:"required"`
-	UserID      int
+	UserID      int64
 }
 
 var events = []Event{}
